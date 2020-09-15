@@ -1,3 +1,3 @@
 # 2020-personal-python
 
-请修改 README
+2020软件工程个人编程作业 
