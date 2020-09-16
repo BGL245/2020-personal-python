@@ -18,7 +18,7 @@ class Data:
         x = open('3.json', 'r', encoding='utf-8').read()
         self.__4Events4PerPPerR = json.loads(x)
 
-    # 读python文件
+    # 解析json文件
     def __init(self, dict_address: str):
         json_list = []  # 定义一个列表
         # os.walk()遍历一个目录内各子目录和子文件
@@ -43,17 +43,17 @@ class Data:
         self.__4Events4PerR = {}  # 项目的四个事件dict字典
         self.__4Events4PerPPerR = {}  # 每个人每个项目的四个事件dict字典
         for i in records:
-            if not self.__4Events4PerP.get(i['actor__login'], 0):  # 字典中键有actor_login就跳过，否则执行
+            if not self.__4Events4PerP.get(i['actor__login'], 0):  # 判断字典中是否有键actor_login
                 self.__4Events4PerP.update({i['actor__login']: {}})  # 没有就加入
                 self.__4Events4PerPPerR.update({i['actor__login']: {}})
             self.__4Events4PerP[i['actor__login']][i['type']
             ] = self.__4Events4PerP[i['actor__login']].get(i['type'], 0) + 1  # 获取到相应type的值+1，type没有为0
-            if not self.__4Events4PerR.get(i['repo__name'], 0):  # 字典中键有repo_name就跳过，否则执行
+            if not self.__4Events4PerR.get(i['repo__name'], 0):
                 self.__4Events4PerR.update({i['repo__name']: {}})
             self.__4Events4PerR[i['repo__name']][i['type']
             ] = self.__4Events4PerR[i['repo__name']].get(i['type'], 0) + 1
             if not self.__4Events4PerPPerR[i['actor__login']].get(i['repo__name'],
-                                                                  0):  # 字典中键有actor_login中有repo_name就跳过，否则执行
+                                                                  0):
                 self.__4Events4PerPPerR[i['actor__login']].update({i['repo__name']: {}})
             self.__4Events4PerPPerR[i['actor__login']][i['repo__name']][i['type']
             ] = self.__4Events4PerPPerR[i['actor__login']][i['repo__name']].get(i['type'], 0) + 1
@@ -82,11 +82,11 @@ class Data:
             records.append(_d)
         return records
 
-    def getEventsUsers(self, username: str, event: str) -> int:
+    def getEventsUsers(self, username: str, event: str) -> int: #返回int型
         if not self.__4Events4PerP.get(username, 0):
             return 0
         else:
-            return self.__4Events4PerP[username].get(event, 0)  # 返回事件
+            return self.__4Events4PerP[username].get(event, 0)
 
     def getEventsRepos(self, reponame: str, event: str) -> int:
         if not self.__4Events4PerR.get(reponame, 0):
