@@ -2,25 +2,18 @@ import json
 import os
 import argparse
 
-
 class Data:
     # 初始化Data类
     def __init__(self, dict_address: int = None, reload: int = 0):
         if reload == 1:
             self.__init(dict_address)
-        if dict_address is None and not os.path.exists('1.json') and not os.path.exists(
-                '2.json') and not os.path.exists('3.json'):  # 判断文件是否存在
-            raise RuntimeError('error: init failed')
-        x = open('1.json', 'r', encoding='utf-8').read()
-        self.__4Events4PerP = json.loads(x)  # 将已编码的 JSON 字符串解码为 Python 对象
-        x = open('2.json', 'r', encoding='utf-8').read()
-        self.__4Events4PerR = json.loads(x)
-        x = open('3.json', 'r', encoding='utf-8').read()
-        self.__4Events4PerPPerR = json.loads(x)
 
     # 解析json文件
     def __init(self, dict_address: str):
         json_list = []  # 定义一个列表
+        self.__4Events4PerP = {}  # 个人的四个事件dict字典
+        self.__4Events4PerR = {}  # 项目的四个事件dict字典
+        self.__4Events4PerPPerR = {}  # 每个人每个项目的四个事件dict字典
         # os.walk()遍历一个目录内各子目录和子文件
         # root 所指的是当前正在遍历的这个文件夹的本身的地址
         # dirs 是一个 list ，内容是该文件夹中所有的目录的名字(不包括子目录)
@@ -39,9 +32,6 @@ class Data:
                         except:
                             pass  # 防止出错
         records = self.__listOfNestedDict2ListOfDict(json_list)  # 转换为字典
-        self.__4Events4PerP = {}  # 个人的四个事件dict字典
-        self.__4Events4PerR = {}  # 项目的四个事件dict字典
-        self.__4Events4PerPPerR = {}  # 每个人每个项目的四个事件dict字典
         for i in records:
             if not self.__4Events4PerP.get(i['actor__login'], 0):  # 判断字典中是否有键actor_login
                 self.__4Events4PerP.update({i['actor__login']: {}})  # 没有就加入
@@ -83,18 +73,24 @@ class Data:
         return records
 
     def getEventsUsers(self, username: str, event: str) -> int: #返回int型
+        x = open('1.json', 'r', encoding='utf-8').read()
+        self.__4Events4PerP = json.loads(x)  # 将已编码的 JSON 字符串解码为 Python 对象
         if not self.__4Events4PerP.get(username, 0):
             return 0
         else:
             return self.__4Events4PerP[username].get(event, 0)
 
     def getEventsRepos(self, reponame: str, event: str) -> int:
+        x = open('2.json', 'r', encoding='utf-8').read()
+        self.__4Events4PerR = json.loads(x)
         if not self.__4Events4PerR.get(reponame, 0):
             return 0
         else:
             return self.__4Events4PerR[reponame].get(event, 0)
 
     def getEventsUsersAndRepos(self, username: str, reponame: str, event: str) -> int:
+        x = open('3.json', 'r', encoding='utf-8').read()
+        self.__4Events4PerPPerR = json.loads(x)
         if not self.__4Events4PerP.get(username, 0):
             return 0
         elif not self.__4Events4PerPPerR[username].get(reponame, 0):
