@@ -2,18 +2,20 @@ import json
 import os
 import argparse
 
+
 class Data:
     # 初始化Data类
+    Events4PerP = {}  # 个人的四个事件dict字典
+    Events4PerR = {}  # 项目的四个事件dict字典
+    Events4PerPPerR = {}  # 每个人每个项目的四个事件dict字典
+
     def __init__(self, dict_address: int = None, reload: int = 0):
         if reload == 1:
-            self.__init(dict_address)
+           self.__init(dict_address)
 
     # 解析json文件
     def __init(self, dict_address: str):
         json_list = []  # 定义一个列表
-        self.__4Events4PerP = {}  # 个人的四个事件dict字典
-        self.__4Events4PerR = {}  # 项目的四个事件dict字典
-        self.__4Events4PerPPerR = {}  # 每个人每个项目的四个事件dict字典
         # os.walk()遍历一个目录内各子目录和子文件
         # root 所指的是当前正在遍历的这个文件夹的本身的地址
         # dirs 是一个 list ，内容是该文件夹中所有的目录的名字(不包括子目录)
@@ -31,28 +33,28 @@ class Data:
                             json_list.append(json.loads(_str))  # json.load()将json格式的字符串转换成python的数据类型，返回的是str不是dict
                         except:
                             pass  # 防止出错
-        records = self.__listOfNestedDict2ListOfDict(json_list)  # 转换为字典
+        records = self.__listOfNestedDict2ListOfDict(json_list)  # 转换为字典 records为一个列表
         for i in records:
-            if not self.__4Events4PerP.get(i['actor__login'], 0):  # 判断字典中是否有键actor_login
-                self.__4Events4PerP.update({i['actor__login']: {}})  # 没有就加入
-                self.__4Events4PerPPerR.update({i['actor__login']: {}})
-            self.__4Events4PerP[i['actor__login']][i['type']
-            ] = self.__4Events4PerP[i['actor__login']].get(i['type'], 0) + 1  # 获取到相应type的值+1，type没有为0
-            if not self.__4Events4PerR.get(i['repo__name'], 0):
-                self.__4Events4PerR.update({i['repo__name']: {}})
-            self.__4Events4PerR[i['repo__name']][i['type']
-            ] = self.__4Events4PerR[i['repo__name']].get(i['type'], 0) + 1
-            if not self.__4Events4PerPPerR[i['actor__login']].get(i['repo__name'],
+            if not self.Events4PerP.get(i['actor__login'], 0):  # 判断字典中是否有键actor_login
+                self.Events4PerP.update({i['actor__login']: {}})  # 没有就加入
+                self.Events4PerPPerR.update({i['actor__login']: {}})
+            self.Events4PerP[i['actor__login']][i['type']
+            ] = self.Events4PerP[i['actor__login']].get(i['type'], 0) + 1 # 获取到相应type的值+1，type没有为0
+            if not self.Events4PerR.get(i['repo__name'], 0):
+                self.Events4PerR.update({i['repo__name']: {}})
+            self.Events4PerR[i['repo__name']][i['type']
+            ] = self.Events4PerR[i['repo__name']].get(i['type'], 0) + 1
+            if not self.Events4PerPPerR[i['actor__login']].get(i['repo__name'],
                                                                   0):
-                self.__4Events4PerPPerR[i['actor__login']].update({i['repo__name']: {}})
-            self.__4Events4PerPPerR[i['actor__login']][i['repo__name']][i['type']
-            ] = self.__4Events4PerPPerR[i['actor__login']][i['repo__name']].get(i['type'], 0) + 1
+                self.Events4PerPPerR[i['actor__login']].update({i['repo__name']: {}})
+            self.Events4PerPPerR[i['actor__login']][i['repo__name']][i['type']
+            ] = self.Events4PerPPerR[i['actor__login']][i['repo__name']].get(i['type'], 0) + 1
         with open('1.json', 'w', encoding='utf-8') as f:  # 文件不存在就生成
-            json.dump(self.__4Events4PerP, f)  # 将内容序列化，并写入打开的文件中 存个人事件
+            json.dump(self.Events4PerP, f)  # 将内容序列化，并写入打开的文件中 存个人事件
         with open('2.json', 'w', encoding='utf-8') as f:
-            json.dump(self.__4Events4PerR, f)  # 项目事件
+            json.dump(self.Events4PerR, f)  # 项目事件
         with open('3.json', 'w', encoding='utf-8') as f:
-            json.dump(self.__4Events4PerPPerR, f)  # 每个人每个项目的事件
+            json.dump(self.Events4PerPPerR, f)  # 每个人每个项目的事件
 
     # 将列表转为字典
     def __parseDict(self, d: dict, prefix: str):
@@ -74,29 +76,29 @@ class Data:
 
     def getEventsUsers(self, username: str, event: str) -> int: #返回int型
         x = open('1.json', 'r', encoding='utf-8').read()
-        self.__4Events4PerP = json.loads(x)  # 将已编码的 JSON 字符串解码为 Python 对象
-        if not self.__4Events4PerP.get(username, 0):
+        self.Events4PerP = json.loads(x)  # 将已编码的 JSON 字符串解码为 Python 对象
+        if not self.Events4PerP.get(username, 0):
             return 0
         else:
-            return self.__4Events4PerP[username].get(event, 0)
+            return self.Events4PerP[username].get(event, 0)
 
     def getEventsRepos(self, reponame: str, event: str) -> int:
         x = open('2.json', 'r', encoding='utf-8').read()
-        self.__4Events4PerR = json.loads(x)
-        if not self.__4Events4PerR.get(reponame, 0):
+        self.Events4PerR = json.loads(x)
+        if not self.Events4PerR.get(reponame, 0):
             return 0
         else:
-            return self.__4Events4PerR[reponame].get(event, 0)
+            return self.Events4PerR[reponame].get(event, 0)
 
     def getEventsUsersAndRepos(self, username: str, reponame: str, event: str) -> int:
         x = open('3.json', 'r', encoding='utf-8').read()
-        self.__4Events4PerPPerR = json.loads(x)
-        if not self.__4Events4PerP.get(username, 0):
+        self.Events4PerPPerR = json.loads(x)
+        if not self.Events4PerP.get(username, 0):
             return 0
-        elif not self.__4Events4PerPPerR[username].get(reponame, 0):
+        elif not self.Events4PerPPerR[username].get(reponame, 0):
             return 0
         else:
-            return self.__4Events4PerPPerR[username][reponame].get(event, 0)
+            return self.Events4PerPPerR[username][reponame].get(event, 0)
 
 
 class Run:
@@ -120,7 +122,7 @@ class Run:
             return 0
         else:
             if self.data is None:
-                self.data = Data()
+               self.data = Data()
             if self.parser.parse_args().event:
                 if self.parser.parse_args().user:
                     if self.parser.parse_args().repo:
@@ -142,3 +144,4 @@ class Run:
 
 if __name__ == '__main__':
     a = Run()
+
